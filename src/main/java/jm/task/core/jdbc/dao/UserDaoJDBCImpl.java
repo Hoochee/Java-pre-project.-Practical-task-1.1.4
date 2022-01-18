@@ -3,6 +3,7 @@ package jm.task.core.jdbc.dao;
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -37,19 +38,22 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        final String sql = "INSERT INTO Users VALUES(NULL,'" + name + "','" + lastName + "','" + age + "')";
         try {
-            Util.getStatement().executeUpdate(sql);
+            PreparedStatement statement = Util.getConnection().prepareStatement("INSERT INTO Users VALUES(NULL,?,?,?)");
+            statement.setString(1, name);
+            statement.setString(2, lastName);
+            statement.setByte(3, age);
+            statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
 
     public void removeUserById(long id) {
-        final String removeUser = "DELETE FROM Users WHERE id = " + id;
         try {
-            Util.getStatement().executeUpdate(removeUser);
+            PreparedStatement statement = Util.getConnection().prepareStatement("DELETE FROM Users WHERE id = ?");
+            statement.setLong(1, id);
+            statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
