@@ -11,9 +11,7 @@ public class Util {
 
     static {
         Properties prop = new Properties();
-
         try {
-            String filePath = new File("./JDBCSettings.properties").getCanonicalPath();
             prop.load(new FileInputStream("JDBCSettings.properties"));
             connection = DriverManager.getConnection(prop.getProperty("url"), prop.getProperty("username"), prop.getProperty("password"));
         } catch (IOException | SQLException e) {
