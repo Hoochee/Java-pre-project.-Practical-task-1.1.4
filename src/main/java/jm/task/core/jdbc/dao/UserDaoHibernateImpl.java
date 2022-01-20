@@ -4,7 +4,6 @@ import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
 import java.util.List;
@@ -12,8 +11,7 @@ import java.util.List;
 import static jm.task.core.jdbc.util.Util.getSessionFactory;
 
 public class UserDaoHibernateImpl implements UserDao {
-    static Session session;
-    static SessionFactory sessionFactory;
+    private static Session session = Util.getSessionFactory().openSession();
 
     public UserDaoHibernateImpl() {
 
@@ -47,8 +45,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        User user = null;
-        session = Util.getSessionFactory().openSession();
+        User user;
         session.beginTransaction();
         user = new User(name, lastName, age);
         session.save(user);
@@ -58,9 +55,10 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void removeUserById(long id) {
-        session = Util.getSessionFactory().openSession();
         session.beginTransaction();
-        User user = findById(id);
+        User user = new User();
+        user.setId(id);
+        // User user = findById(id);
         session.delete(user);
         session.close();
     }
@@ -68,27 +66,23 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public List<User> getAllUsers() {
         List<User> users;
-        session = Util.getSessionFactory().openSession();
         session.beginTransaction();
-        users = session.createQuery("SELECT * FROM Users").list();
+        users = session.createQuery("FROM Users").list();
         session.close();
         return users;
     }
 
     @Override
     public void cleanUsersTable() {
-        session = Util.getSessionFactory().openSession();
         session.beginTransaction();
-        Query query = session.createQuery("DELETE FROM Users");
-        query.executeUpdate();
+        session.createQuery("DELETE FROM Users").executeUpdate();
         session.close();
     }
 
     public User findById(long id) {
-        User user = null;
-        session = Util.getSessionFactory().openSession();
+        User user;
         session.beginTransaction();
-        user = (User) session.load(User.class, id);
+        user = session.load(User.class, id);
         session.close();
         return user;
     }
